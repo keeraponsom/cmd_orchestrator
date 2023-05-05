@@ -136,5 +136,5 @@ for i in data:
             i['bpmnxml'] = f'{str(xml_string)}'
             i['xhtml'] = str(xhtml)
 
-json_output = json.dumps(data, indent=4)
-print(json_output)
+json_outputz = json.dumps(data, indent=4)
+print(json_outputz)
