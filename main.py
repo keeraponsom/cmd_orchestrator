@@ -123,7 +123,6 @@ def main_kub():
     return data
 
 data = main_kub()
-print(data)
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -140,7 +139,6 @@ app.add_middleware(
 )
 
 json_output = json.dumps(data, indent=4)
-print(json_output)
 @app.get("/")
 async def get_data():
     return JSONResponse(content=data)
