@@ -3,6 +3,12 @@ import json
 import datetime
 import base64
 import xmltodict
+import schedule
+import time
+
+def update_data():
+    global data
+    data = main_kub()
 
 def main_kub():
     url = 'http://localhost:9200/zeebe-record_job_8.0.0_*/_search'
@@ -123,7 +129,8 @@ def main_kub():
     return data
 
 data = main_kub()
-print(data)
+schedule.every(5).seconds.do(update_data)
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -148,17 +155,25 @@ async def get_data():
 @app.get("/dashboard/")
 async def dashboard_data():
     data_dashboard = [
-    {
-        "bpmnProcessId": item["bpmnProcessId"],
-        "Current_Instance_Status": item["Current_Instance_Status"],
-        "Robot": "This is Robot kub",  ### <<<<< ???
-        "Start_time": item["Start_time"],
-        "processInstanceKey": item["processInstanceKey"]
-    } 
-    for item in data
-]
+        {
+            "bpmnProcessId": item["bpmnProcessId"],
+            "Current_Instance_Status": item["Current_Instance_Status"],
+            "Robot": "This is Robot kub",
+            "Start_time": item["Start_time"],
+            "processInstanceKey": item["processInstanceKey"]
+        } 
+        for item in data
+    ]
     return JSONResponse(content=data_dashboard)
 
+def run():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 if __name__ == '__main__':
+    import threading
+    t = threading.Thread(target=run)
+    t.start()
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
