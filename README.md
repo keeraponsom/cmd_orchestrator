@@ -4,23 +4,21 @@ This repository created to be Inwza Orchestrator
 
 ## Let's get start.
 
-This is API was created by use data from Elasticsearch.
+This API was created using data from Elasticsearch.
 
-After you already install MUDAMUDA You Can clone this Repository.
+After you have installed MUDAMUDA, you can clone this repository:
 ```bash
 git clone https://github.com/keeraponsom/cmd_orchestrator
 ```
 
-Okay, After you clone this repository , you can run the server in file "main.py" as Static data. It's will not refresh data for your API.
+Once you have cloned the repository, you can run the server in the file "main.py" to view static data. The data will not be refreshed for your API.
 
-But if you want your data to be Updated. you Can run the server from file "Update_data_every5sec.py"
+If you want your data to be updated, you can run the server from the file "Update_data_every5sec.py".
 
-Currently a we run at port 8000. You can modify the port as you want.
+Currently, we are running on port 8000. You can modify the port as needed.
 
-#The list of endpoint for currently, you will see it below.
+The list of endpoints is currently as follows:
 
- Main -> http://localhost:8000/
+Main -> http://localhost:8000/
 
- Dashboard -> http://localhost:8000/dashboard
-
-
+Dashboard -> http://localhost:8000/dashboard
