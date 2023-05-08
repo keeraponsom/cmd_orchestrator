@@ -88,6 +88,7 @@ def main_kub():
 
     data = [
         {
+            "keys":i,
             "bpmnProcessId": listbpmnProcessId[i],
             "processInstanceKey": processInstanceKey[i],
             "Current_Process_ID": Current_Process_ID[i],
@@ -124,7 +125,6 @@ def main_kub():
                 xml_dict = xmltodict.parse(decoded_string)
                 xml_string = xmltodict.unparse(xml_dict)
                 i['bpmnxml'] = f'{str(xml_string)}'
-                i['xhtml'] = str(xhtml)
     return data
 
 #run main_kub() for updating data
