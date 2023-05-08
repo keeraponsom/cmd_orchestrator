@@ -67,6 +67,7 @@ def main_kub():
         version.append(i['value']["processDefinitionVersion"])
         processDefinitionKey.append(i['value']["processDefinitionKey"])
 
+
     timemaxconvert = []
     timeminconvert = []
     for i in timemax:
