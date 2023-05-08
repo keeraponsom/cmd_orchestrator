@@ -16,7 +16,6 @@ def main_kub():
     response = requests.post(url, json=query)
     non_dis = []
     fulldata = []
-    listza = []
     timecheck = []
     timemax = []
     timemin = []
@@ -122,6 +121,7 @@ def main_kub():
                 i['xhtml'] = str(xhtml)
     return data
 
+#run main_kub() for updating data
 data = main_kub()
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
