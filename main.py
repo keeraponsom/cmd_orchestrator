@@ -122,7 +122,7 @@ def main_kub():
     return data
 
 #run main_kub() for updating data
-data = main_kub()
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -138,13 +138,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-json_output = json.dumps(data, indent=4)
+# json_output = json.dumps(data, indent=4) << for check data
 @app.get("/")
 async def get_data():
+    data = main_kub()
     return JSONResponse(content=data)
 
 @app.get("/dashboard/")
 async def dashboard_data():
+    data = main_kub()
     data_dashboard = [
     {
         "bpmnProcessId": item["bpmnProcessId"],
