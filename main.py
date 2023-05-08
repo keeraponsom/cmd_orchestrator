@@ -5,7 +5,7 @@ import base64
 import xmltodict
 
 def main_kub():
-    url = 'http://localhost:9200/zeebe-record_job_8.0.0_*/_search'
+    url = 'http://localhost:9200/zeebe-record_job_*/_search'
 
     response = requests.post(url)
     size = response.json()["hits"]['total']['value']
@@ -97,7 +97,7 @@ def main_kub():
         for i in range(len(listbpmnProcessId))
     ]
 
-    url = 'http://localhost:9200/zeebe-record_process_8.0.0_*/_search'
+    url = 'http://localhost:9200/zeebe-record_process_*/_search'
 
     response = requests.post(url)
 
