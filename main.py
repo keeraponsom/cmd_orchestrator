@@ -11,7 +11,7 @@ def main_kub():
     size = response.json()["hits"]['total']['value']
 
     query = {
-        "size": size
+        "size": 1000
     }
     response = requests.post(url, json=query)
     non_dis = []
@@ -95,7 +95,7 @@ def main_kub():
             "variables": varlist[i]["variables"],
             "processDefinitionKey":processDefinitionKey[i],
         }
-        for i in range(len(listbpmnProcessId))
+        for i in range(len(processInstanceKey))
     ]
 
     url = 'http://localhost:9200/zeebe-record_process_*/_search'
@@ -104,7 +104,7 @@ def main_kub():
 
     size = response.json()['_shards']['total']
     query = {
-        "size": size
+        "size": 1000
     }
     response = requests.post(url, json=query)
     
@@ -142,6 +142,7 @@ app.add_middleware(
 @app.get("/")
 async def get_data():
     data = main_kub()
+    print(data)
     return JSONResponse(content=data)
 
 @app.get("/dashboard/")

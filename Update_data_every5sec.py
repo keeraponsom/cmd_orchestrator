@@ -17,7 +17,7 @@ def main_kub():
     size = response.json()["hits"]['total']['value']
 
     query = {
-        "size": size
+        "size": 1000
     }
     response = requests.post(url, json=query)
     non_dis = []
@@ -110,7 +110,7 @@ def main_kub():
 
     size = response.json()['_shards']['total']
     query = {
-        "size": size
+        "size": 1000
     }
     response = requests.post(url, json=query)
     
