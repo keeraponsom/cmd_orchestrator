@@ -48,6 +48,13 @@ def main_kub():
                 fulldata.append(i['_source'])
 
 
+    url_form = "http://localhost:9200/tasklist-form-1.0.0_/_search"
+    query = {
+        "size": 1000
+    }
+    response_form = requests.post(url_form, json=query)
+    response_form = response_form.json()['hits']['hits']
+
     #save all variable to use in list
     listbpmnProcessId = []
     processInstanceKey = []
@@ -57,6 +64,7 @@ def main_kub():
     errorMessage = []
     version = []
     processDefinitionKey = []
+    camunda_form = []
     for i in fulldata:
         listbpmnProcessId.append(i['value']['bpmnProcessId'])
         processInstanceKey.append(i['value']['processInstanceKey'])
@@ -66,6 +74,20 @@ def main_kub():
         errorMessage.append(i['value']['errorMessage'])
         version.append(i['value']["processDefinitionVersion"])
         processDefinitionKey.append(i['value']["processDefinitionKey"])
+    #try to append curent jsonform to list
+        try:
+            x = i['value']['customHeaders']['io.camunda.zeebe:formKey']
+            my_dict = {}
+            # Split the string by the colon separator
+            string_parts = x.split(":")
+            # Assign the value of the last part to the key in the dictionary
+            my_dict[string_parts[0] + ":" + string_parts[1]] = string_parts[2]
+            current_form_id = my_dict["camunda-forms:bpmn"]
+            for i in response_form:
+                if current_form_id == i['_source']['bpmnId']:
+                    camunda_form.append(str(i['_source']['schema']))
+        except:
+            camunda_form.append("")
 
 
     timemaxconvert = []
@@ -95,6 +117,7 @@ def main_kub():
             "End_time": timemaxconvert[i],
             "variables": varlist[i]["variables"],
             "processDefinitionKey":processDefinitionKey[i],
+            "jsonform":camunda_form[i],
         }
         for i in range(len(processInstanceKey))
     ]
@@ -122,7 +145,6 @@ def main_kub():
                 i['bpmnxml'] = f'{str(xml_string)}'
     return data
 
-#run main_kub() for updating data
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
