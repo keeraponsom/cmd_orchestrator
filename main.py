@@ -84,56 +84,57 @@ def main_kub():
             # Assign the value of the last part to the key in the dictionary
             my_dict[string_parts[0] + ":" + string_parts[1]] = string_parts[2]
             current_form_id = my_dict["camunda-forms:bpmn"]
-            ## การทำ Jsonform ยังไม่ค่อยดี เพราะเลือกแค่ Form แรกที่เจอ
+            all_lastform = []
+            lastform = []
             for x in response_form:
                 if current_form_id == x['_source']['bpmnId']:
                     components = json.loads(x["_source"]["schema"])["components"]
-                    # print(components)
+                    lastform.append(components)
+            all_lastform.append(lastform[-1])
+            # print(lastform[-1])
+            lastform = []
+            # print(all_lastform)
+            for x in response_form:
+                if current_form_id == x['_source']['bpmnId']:
+                    for components in all_lastform:
+        ### Start convert CAMUNDA format to React
+                        # Initialize the new dictionary object
+                        new_data = {
+                            "title": "",
+                            "description": "A simple form example.",
+                            "type": "object",
+                            "properties": {}
+                        }
 
-    ### Start convert CAMUNDA format to React
-                    # Initialize the new dictionary object
-                    new_data = {
-                        "title": "",
-                        "description": "A simple form example.",
-                        "type": "object",
-                        "properties": {}
-                    }
-
-                    # Loop through each item in the original data
-                    for item in components:
-                        if "text" in item:
-                            new_data["title"] = item["text"].lstrip("#")
-                        elif "label" in item:
-                            label = item["label"]
-                            field_type = item["type"]
-                            field_id = item["key"]
-                            if field_type == "textfield":
-                                field = {
-                                    "type": "string",
-                                    "title": label
-                                }
-                            elif field_type == "number":
-                                field = {
-                                    "type": "integer"
-                                }
-                            elif field_type == "select":
-                                values = item["values"]
-                                enum_list = [value["label"] for value in values]
-                                field = {
-                                    "type": "string",
-                                    "title": label,
-                                    "enum": enum_list
-                                }
-                            else:
-                                continue
-                            new_data["properties"][field_id] = field
-
-                    # Convert the new dictionary object to JSON and print it
-                    new_data_json = json.dumps(new_data, indent=4)
-                    # print(new_data)
-                    camunda_form.append(new_data)
-                    print(new_data)
-                    break  
+                        # Loop through each item in the original data
+                        for item in components:
+                            if "text" in item:
+                                new_data["title"] = item["text"].lstrip("#")
+                            elif "label" in item:
+                                label = item["label"]
+                                field_type = item["type"]
+                                field_id = item["key"]
+                                if field_type == "textfield":
+                                    field = {
+                                        "type": "string",
+                                        "title": label
+                                    }
+                                elif field_type == "number":
+                                    field = {
+                                        "type": "integer"
+                                    }
+                                elif field_type == "select":
+                                    values = item["values"]
+                                    enum_list = [value["label"] for value in values]
+                                    field = {
+                                        "type": "string",
+                                        "title": label,
+                                        "enum": enum_list
+                                    }
+                                else:
+                                    continue
+                                new_data["properties"][field_id] = field
+                        camunda_form.append(new_data)
         except:
             camunda_form.append("")
 
@@ -193,6 +194,7 @@ def main_kub():
                 i['bpmnxml'] = f'{str(xml_string)}'
     # pretty_json = json.dumps(data, indent=4)
     return data
+# print(main_kub())
 
 
 from fastapi import FastAPI
@@ -214,7 +216,7 @@ app.add_middleware(
 @app.get("/")
 async def get_data():
     data = main_kub()
-    print(data)
+    # print(data)
     return JSONResponse(content=data)
 
 @app.get("/dashboard/")
