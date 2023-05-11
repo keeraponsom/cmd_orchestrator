@@ -49,7 +49,7 @@ def main_kub():
                 fulldata.append(i['_source'])
 
 
-    url_form = "http://localhost:9200/tasklist-form-1.0.0_/_search"
+    url_form = "http://localhost:9200/tasklist-form-*/_search"
     query = {
         "size": 1000
     }
