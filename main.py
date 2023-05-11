@@ -57,6 +57,7 @@ def main_kub():
     response_form = response_form.json()['hits']['hits']
 
     #save all variable to use in list
+    type = []
     listbpmnProcessId = []
     processInstanceKey = []
     Current_Process_ID = []
@@ -67,6 +68,7 @@ def main_kub():
     processDefinitionKey = []
     camunda_form = []
     for i in fulldata:
+        type.append(i['value']['type'])
         listbpmnProcessId.append(i['value']['bpmnProcessId'])
         processInstanceKey.append(i['value']['processInstanceKey'])
         Current_Process_ID.append(i['value']['elementId'])
@@ -155,6 +157,7 @@ def main_kub():
     data = [
         {
             "keys":i,
+            "type":type[i],
             "bpmnProcessId": listbpmnProcessId[i],
             "processInstanceKey": processInstanceKey[i],
             "Current_Process_ID": Current_Process_ID[i],
@@ -239,8 +242,9 @@ async def dashboard_data():
     data = main_kub()
     data_dashboard = []
     i = 0
+    print(data)
     for item in data:
-        if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active":
+        if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active" and item["type"] == "io.camunda.zeebe:userTask":
             data_dashboard.append({
                 "keys": i,
                 "Current_Process_ID": item["Current_Process_ID"],
