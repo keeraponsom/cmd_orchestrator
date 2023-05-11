@@ -13,6 +13,7 @@ def main_kub():
     query = {
         "size": 1000
     }
+        
     response = requests.post(url, json=query)
     non_dis = []
     fulldata = []
@@ -83,9 +84,56 @@ def main_kub():
             # Assign the value of the last part to the key in the dictionary
             my_dict[string_parts[0] + ":" + string_parts[1]] = string_parts[2]
             current_form_id = my_dict["camunda-forms:bpmn"]
-            for i in response_form:
-                if current_form_id == i['_source']['bpmnId']:
-                    camunda_form.append(str(i['_source']['schema']))
+            ## การทำ Jsonform ยังไม่ค่อยดี เพราะเลือกแค่ Form แรกที่เจอ
+            for x in response_form:
+                if current_form_id == x['_source']['bpmnId']:
+                    components = json.loads(x["_source"]["schema"])["components"]
+                    # print(components)
+
+    ### Start convert CAMUNDA format to React
+                    # Initialize the new dictionary object
+                    new_data = {
+                        "title": "",
+                        "description": "A simple form example.",
+                        "type": "object",
+                        "properties": {}
+                    }
+
+                    # Loop through each item in the original data
+                    for item in components:
+                        if "text" in item:
+                            new_data["title"] = item["text"].lstrip("#")
+                        elif "label" in item:
+                            label = item["label"]
+                            field_type = item["type"]
+                            field_id = item["key"]
+                            if field_type == "textfield":
+                                field = {
+                                    "type": "string",
+                                    "title": label
+                                }
+                            elif field_type == "number":
+                                field = {
+                                    "type": "integer"
+                                }
+                            elif field_type == "select":
+                                values = item["values"]
+                                enum_list = [value["label"] for value in values]
+                                field = {
+                                    "type": "string",
+                                    "title": label,
+                                    "enum": enum_list
+                                }
+                            else:
+                                continue
+                            new_data["properties"][field_id] = field
+
+                    # Convert the new dictionary object to JSON and print it
+                    new_data_json = json.dumps(new_data, indent=4)
+                    # print(new_data)
+                    camunda_form.append(new_data)
+                    print(new_data)
+                    break  
         except:
             camunda_form.append("")
 
@@ -131,7 +179,7 @@ def main_kub():
         "size": 1000
     }
     response = requests.post(url, json=query)
-    
+
     for i in data:
         if i['Current_Instance_Status'] == 'CREATED':
             i['End_time'] = "--"
@@ -143,6 +191,7 @@ def main_kub():
                 xml_dict = xmltodict.parse(decoded_string)
                 xml_string = xmltodict.unparse(xml_dict)
                 i['bpmnxml'] = f'{str(xml_string)}'
+    # pretty_json = json.dumps(data, indent=4)
     return data
 
 
@@ -183,6 +232,24 @@ async def dashboard_data():
 ]
     return JSONResponse(content=data_dashboard)
 
+@app.get("/tasklist/")
+async def dashboard_data():
+    data = main_kub()
+    data_dashboard = [
+        {
+            "key": len(item),
+            "Current_Process_ID": item["Current_Process_ID"],
+            "bpmnProcessId": item["bpmnProcessId"],
+            "Creation Time": item["Start_time"],
+            "Start_time": item["Start_time"],
+            "Assignee": "???",
+            "Current_Instance_Status": item["Current_Instance_Status"],
+            "Task Form": item["jsonform"]
+        } 
+        for item in data 
+        if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active"
+    ]
+    return JSONResponse(content=data_dashboard)
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
