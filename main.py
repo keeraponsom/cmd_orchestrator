@@ -235,21 +235,23 @@ async def dashboard_data():
 @app.get("/tasklist/")
 async def dashboard_data():
     data = main_kub()
-    data_dashboard = [
-        {
-            "key": len(item),
-            "Current_Process_ID": item["Current_Process_ID"],
-            "bpmnProcessId": item["bpmnProcessId"],
-            "Creation Time": item["Start_time"],
-            "Start_time": item["Start_time"],
-            "Assignee": "???",
-            "Current_Instance_Status": item["Current_Instance_Status"],
-            "Task Form": item["jsonform"]
-        } 
-        for item in data 
-        if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active"
-    ]
+    data_dashboard = []
+    i = 0
+    for item in data:
+        if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active":
+            data_dashboard.append({
+                "keys": i,
+                "Current_Process_ID": item["Current_Process_ID"],
+                "bpmnProcessId": item["bpmnProcessId"],
+                "Creation Time": item["Start_time"],
+                "Start_time": item["Start_time"],
+                "Assignee": "???",
+                "Current_Instance_Status": item["Current_Instance_Status"],
+                "Task Form": item["jsonform"]
+            })
+            i += 1
     return JSONResponse(content=data_dashboard)
+
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
