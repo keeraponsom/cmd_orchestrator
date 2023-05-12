@@ -67,7 +67,13 @@ def main_kub():
     version = []
     processDefinitionKey = []
     camunda_form = []
+    assignee_list = []
     for i in fulldata:
+        try:
+            assignee_list.append(i['value']['customHeaders']['io.camunda.zeebe:assignee'])
+            print(i['value']['customHeaders']['io.camunda.zeebe:assignee'])
+        except:
+            assignee_list.append("")
         type.append(i['value']['type'])
         listbpmnProcessId.append(i['value']['bpmnProcessId'])
         processInstanceKey.append(i['value']['processInstanceKey'])
@@ -79,12 +85,12 @@ def main_kub():
         processDefinitionKey.append(i['value']["processDefinitionKey"])
     #try to append curent jsonform to list
         try:
-            x = i['value']['customHeaders']['io.camunda.zeebe:formKey']
+            form_id = i['value']['customHeaders']['io.camunda.zeebe:formKey']
             my_dict = {}
             # Split the string by the colon separator
-            string_parts = x.split(":")
+            string_parts_form = form_id.split(":")
             # Assign the value of the last part to the key in the dictionary
-            my_dict[string_parts[0] + ":" + string_parts[1]] = string_parts[2]
+            my_dict[string_parts_form[0] + ":" + string_parts_form[1]] = string_parts_form[2]
             current_form_id = my_dict["camunda-forms:bpmn"]
             all_lastform = []
             lastform = []
@@ -169,6 +175,7 @@ def main_kub():
             "End_time": timemaxconvert[i],
             "variables": varlist[i]["variables"],
             "processDefinitionKey":processDefinitionKey[i],
+            "Assignee":assignee_list[i],
             "jsonform":camunda_form[i],
         }
         for i in range(len(processInstanceKey))
@@ -201,6 +208,7 @@ def main_kub():
 
 
 from fastapi import FastAPI
+from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -258,6 +266,68 @@ async def dashboard_data():
             i += 1
     return JSONResponse(content=data_dashboard)
 
+class Payload(BaseModel):
+    Assignee: str
 
-if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.post("/tasklist/")
+async def dashboard_data(payload:Payload):
+    data = main_kub()
+    data_dashboard = []
+    i = 0
+    for item in data:
+        if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active" and item["type"] == "io.camunda.zeebe:userTask" and item['Assignee'] == str(payload.Assignee):
+            data_dashboard.append({
+                "keys": i,
+                "Assignee": item['Assignee'],
+                "Current_Process_ID": item["Current_Process_ID"],
+                "bpmnProcessId": item["bpmnProcessId"],
+                "Creation Time": item["Start_time"],
+                "Start_time": item["Start_time"],
+                "Current_Instance_Status": item["Current_Instance_Status"],
+                "Task Form": item["jsonform"]
+            })
+            i += 1
+    return JSONResponse(content=data_dashboard)
+
+@app.get("/tasklist/assignee/")
+async def dashboard_data():
+    data = main_kub()
+    data_dashboard = []
+    i = 0
+    for item in data:
+        if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active" and item["type"] == "io.camunda.zeebe:userTask":
+            data_dashboard.append({
+                "keys": i,
+                "Assignee": item["Assignee"],
+                "Current_Process_ID": item["Current_Process_ID"],
+                "bpmnProcessId": item["bpmnProcessId"],
+                "Creation Time": item["Start_time"],
+                "Start_time": item["Start_time"],
+                "Current_Instance_Status": item["Current_Instance_Status"],
+                "Task Form": item["jsonform"]
+            })
+            i += 1
+    return JSONResponse(content=data_dashboard)
+
+@app.post("/tasklist/assignee/")
+async def dashboard_data():
+    data = main_kub()
+    data_dashboard = []
+    i = 0
+    for item in data:
+        if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active" and item["type"] == "io.camunda.zeebe:userTask":
+            data_dashboard.append({
+                "keys": i,
+                "Assignee": item["Assignee"],
+                "Current_Process_ID": item["Current_Process_ID"],
+                "bpmnProcessId": item["bpmnProcessId"],
+                "Creation Time": item["Start_time"],
+                "Start_time": item["Start_time"],
+                "Current_Instance_Status": item["Current_Instance_Status"],
+                "Task Form": item["jsonform"]
+            })
+            i += 1
+    return JSONResponse(content=data_dashboard)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="localhost", port=8000)
