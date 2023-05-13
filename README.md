@@ -11,7 +11,7 @@ After you have installed MUDAMUDA, you can clone this repository:
 git clone https://github.com/keeraponsom/cmd_orchestrator
 ```
 
-Once you have cloned the repository, you can run the server in the file "main.py" to view static data. The data will not be refreshed for your API.
+Once you have cloned the repository, you can run the server in the file "main.py" to view dynamic data.
 
 If you want your data to be updated, you can run the server from the file "Update_data_every5sec.py".
 
