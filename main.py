@@ -3,6 +3,9 @@ import json
 import datetime
 import base64
 import xmltodict
+import logging
+import grpc
+from zeebe_grpc import gateway_pb2, gateway_pb2_grpc
 
 def main_kub():
     url = 'http://localhost:9200/zeebe-record_job_*/_search'
@@ -276,6 +279,7 @@ async def dashboard_data():
 
 class Payload(BaseModel):
     Assignee: str
+    elementInstanceKey : int
 
 @app.post("/tasklist/")
 async def dashboard_data(payload:Payload):
@@ -299,6 +303,33 @@ async def dashboard_data(payload:Payload):
             })
             i += 1
     return JSONResponse(content=data_dashboard)
+
+class Complete_payload(BaseModel):
+    elementInstanceKey : int
+@app.post("/tasklist/complete")
+async def complete_usertask(payload:Complete_payload):
+    with grpc.insecure_channel("localhost:26500") as channel:
+        stub = gateway_pb2_grpc.GatewayStub(channel)
+
+        # start a worker
+        activate_jobs_response = stub.ActivateJobs(
+            gateway_pb2.ActivateJobsRequest(
+                type="io.camunda.zeebe:userTask",
+                worker="Python worker",
+                timeout=60000,
+                maxJobsToActivate=32
+            )
+        )
+        for response in activate_jobs_response:
+            for job in response.jobs:
+                if job.elementInstanceKey == payload.elementInstanceKey:
+                    try:
+                        print(job.elementInstanceKey)
+                        stub.CompleteJob(gateway_pb2.CompleteJobRequest(jobKey=job.key, variables=json.dumps({})))
+                        logging.info("Job Completed")
+                    except Exception as e:
+                        stub.FailJob(gateway_pb2.FailJobRequest(jobKey=job.key))
+                        logging.info(f"Job Failed {e}")
 
 
 @app.get("/tasklist/assignee/")

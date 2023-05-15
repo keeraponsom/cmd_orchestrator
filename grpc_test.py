@@ -17,11 +17,11 @@ with grpc.insecure_channel("localhost:26500") as channel:
     )
     for response in activate_jobs_response:
         for job in response.jobs:
-            if job.processInstanceKey == 2251799813685905:
+            # if job.elementInstanceKey == 2251799813687130:
                 try:
-                    print(job.processInstanceKey)
                     stub.CompleteJob(gateway_pb2.CompleteJobRequest(jobKey=job.key, variables=json.dumps({})))
                     logging.info("Job Completed")
+                    print(job.elementInstanceKey)
                 except Exception as e:
                     stub.FailJob(gateway_pb2.FailJobRequest(jobKey=job.key))
                     logging.info(f"Job Failed {e}")
