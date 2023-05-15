@@ -307,6 +307,7 @@ async def dashboard_data(payload:Payload):
 
 class Complete_payload(BaseModel):
     elementInstanceKey : int
+    variables : dict
 @app.post("/tasklist/complete")
 async def complete_usertask(payload:Complete_payload):
     with grpc.insecure_channel("localhost:26500") as channel:
@@ -326,7 +327,7 @@ async def complete_usertask(payload:Complete_payload):
                 if job.elementInstanceKey == payload.elementInstanceKey:
                     try:
                         print(job.elementInstanceKey)
-                        stub.CompleteJob(gateway_pb2.CompleteJobRequest(jobKey=job.key, variables=json.dumps({})))
+                        stub.CompleteJob(gateway_pb2.CompleteJobRequest(jobKey=job.key, variables=json.dumps(payload.variables)))
                         logging.info("Job Completed")
                     except Exception as e:
                         stub.FailJob(gateway_pb2.FailJobRequest(jobKey=job.key))
