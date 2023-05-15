@@ -68,6 +68,7 @@ def main_kub():
     processDefinitionKey = []
     camunda_form = []
     assignee_list = []
+    form_id_list = []
     for i in fulldata:
         try:
             assignee_list.append(i['value']['customHeaders']['io.camunda.zeebe:assignee'])
@@ -143,8 +144,10 @@ def main_kub():
                                     continue
                                 new_data["properties"][field_id] = field
                         camunda_form.append(new_data)
+                        form_id_list.append(form_id)
         except:
             camunda_form.append("")
+            form_id_list.append("")
 
 
     timemaxconvert = []
@@ -177,6 +180,7 @@ def main_kub():
             "processDefinitionKey":processDefinitionKey[i],
             "Assignee":assignee_list[i],
             "jsonform":camunda_form[i],
+            "form_id":form_id_list[i]
         }
         for i in range(len(processInstanceKey))
     ]
@@ -255,13 +259,15 @@ async def dashboard_data():
         if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active" and item["type"] == "io.camunda.zeebe:userTask":
             data_dashboard.append({
                 "keys": i,
+                "processInstanceKey":item["processInstanceKey"],
                 "Current_Process_ID": item["Current_Process_ID"],
                 "bpmnProcessId": item["bpmnProcessId"],
                 "Creation Time": item["Start_time"],
                 "Start_time": item["Start_time"],
                 "Assignee": "???",
                 "Current_Instance_Status": item["Current_Instance_Status"],
-                "Task Form": item["jsonform"]
+                "Task Form": item["jsonform"],
+                "form_id":item["form_id"],
             })
             i += 1
     return JSONResponse(content=data_dashboard)
@@ -278,16 +284,19 @@ async def dashboard_data(payload:Payload):
         if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active" and item["type"] == "io.camunda.zeebe:userTask" and item['Assignee'] == str(payload.Assignee):
             data_dashboard.append({
                 "keys": i,
+                "processInstanceKey":item["processInstanceKey"],
                 "Assignee": item['Assignee'],
                 "Current_Process_ID": item["Current_Process_ID"],
                 "bpmnProcessId": item["bpmnProcessId"],
                 "Creation Time": item["Start_time"],
                 "Start_time": item["Start_time"],
                 "Current_Instance_Status": item["Current_Instance_Status"],
-                "Task Form": item["jsonform"]
+                "Task Form": item["jsonform"],
+                "form_id":item["form_id"],
             })
             i += 1
     return JSONResponse(content=data_dashboard)
+
 
 @app.get("/tasklist/assignee/")
 async def dashboard_data():
