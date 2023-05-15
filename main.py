@@ -272,14 +272,14 @@ async def dashboard_data():
                 "Current_Instance_Status": item["Current_Instance_Status"],
                 "Task Form": item["jsonform"],
                 "form_id":item["form_id"],
-                "elementInstanceKey":item["elementInstanceKey"]
+                "elementInstanceKey":item["elementInstanceKey"],
+                "variables": item["variables"],
             })
             i += 1
     return JSONResponse(content=data_dashboard)
 
 class Payload(BaseModel):
     Assignee: str
-    elementInstanceKey : int
 
 @app.post("/tasklist/")
 async def dashboard_data(payload:Payload):
@@ -300,6 +300,7 @@ async def dashboard_data(payload:Payload):
                 "Task Form": item["jsonform"],
                 "form_id":item["form_id"],
                 "elementInstanceKey":item["elementInstanceKey"],
+                "variables": item["variables"],
             })
             i += 1
     return JSONResponse(content=data_dashboard)
