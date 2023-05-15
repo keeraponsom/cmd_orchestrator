@@ -73,7 +73,6 @@ def main_kub():
     for i in fulldata:
         try:
             assignee_list.append(i['value']['customHeaders']['io.camunda.zeebe:assignee'])
-            print(i['value']['customHeaders']['io.camunda.zeebe:assignee'])
         except:
             assignee_list.append("")
         type.append(i['value']['type'])
@@ -257,7 +256,6 @@ async def dashboard_data():
     data = main_kub()
     data_dashboard = []
     i = 0
-    print(data)
     for item in data:
         if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active" and item["type"] == "io.camunda.zeebe:userTask":
             data_dashboard.append({
