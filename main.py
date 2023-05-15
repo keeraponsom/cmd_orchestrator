@@ -69,6 +69,7 @@ def main_kub():
     camunda_form = []
     assignee_list = []
     form_id_list = []
+    elementInstanceKey_list = []
     for i in fulldata:
         try:
             assignee_list.append(i['value']['customHeaders']['io.camunda.zeebe:assignee'])
@@ -84,6 +85,7 @@ def main_kub():
         errorMessage.append(i['value']['errorMessage'])
         version.append(i['value']["processDefinitionVersion"])
         processDefinitionKey.append(i['value']["processDefinitionKey"])
+        elementInstanceKey_list.append(i['value']["elementInstanceKey"])
     #try to append curent jsonform to list
         try:
             form_id = i['value']['customHeaders']['io.camunda.zeebe:formKey']
@@ -168,6 +170,7 @@ def main_kub():
             "keys":i,
             "type":type[i],
             "bpmnProcessId": listbpmnProcessId[i],
+            "elementInstanceKey" : elementInstanceKey_list[i],
             "processInstanceKey": processInstanceKey[i],
             "Current_Process_ID": Current_Process_ID[i],
             "Current_Instance_Status": Current_Instance_States[i],
@@ -268,6 +271,7 @@ async def dashboard_data():
                 "Current_Instance_Status": item["Current_Instance_Status"],
                 "Task Form": item["jsonform"],
                 "form_id":item["form_id"],
+                "elementInstanceKey":item["elementInstanceKey"]
             })
             i += 1
     return JSONResponse(content=data_dashboard)
@@ -293,6 +297,7 @@ async def dashboard_data(payload:Payload):
                 "Current_Instance_Status": item["Current_Instance_Status"],
                 "Task Form": item["jsonform"],
                 "form_id":item["form_id"],
+                "elementInstanceKey":item["elementInstanceKey"],
             })
             i += 1
     return JSONResponse(content=data_dashboard)
