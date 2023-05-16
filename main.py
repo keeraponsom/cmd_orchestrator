@@ -9,12 +9,11 @@ from zeebe_grpc import gateway_pb2, gateway_pb2_grpc
 
 def main_kub():
     url = 'http://localhost:9200/zeebe-record_job_*/_search'
-
+    
     response = requests.post(url)
-    size = response.json()["hits"]['total']['value']
 
     query = {
-        "size": 1000
+        "size": 10000
     }
         
     response = requests.post(url, json=query)
@@ -54,7 +53,7 @@ def main_kub():
 
     url_form = "http://localhost:9200/tasklist-form-*/_search"
     query = {
-        "size": 1000
+        "size": 10000
     }
     response_form = requests.post(url_form, json=query)
     response_form = response_form.json()['hits']['hits']
@@ -259,8 +258,9 @@ async def dashboard_data():
     data = main_kub()
     data_dashboard = []
     i = 0
+    valid_statuses = ["Active", "TIMED_OUT"]
     for item in data:
-        if item["jsonform"] != "" and item["Current_Instance_Status"] == "Active" and item["type"] == "io.camunda.zeebe:userTask":
+        if item["jsonform"] != "" and item["Current_Instance_Status"] in valid_statuses and item["type"] == "io.camunda.zeebe:userTask":
             data_dashboard.append({
                 "keys": i,
                 "processInstanceKey":item["processInstanceKey"],
